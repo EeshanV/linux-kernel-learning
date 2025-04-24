@@ -98,7 +98,6 @@ static struct ctl_table my_table[] = {
   .maxlen = sizeof(int),
   .proc_handler = proc_dointvec
   },
-  { }
 };
 
 static struct ctl_table_header *hdr;
