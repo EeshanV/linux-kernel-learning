@@ -9,7 +9,7 @@ Linux's procfs lets us inspect process info (`/proc/[PID]/*`), CPU stats (`/proc
 ### VFS Integration
 
 - At boot, the kernel registers procsf as a special **VFS** type. It implements its own [superblock](superblock.md) and [inode](inode.md)
-- No underlying block is needed, every file is handled by kernel callbacks that populate the bufferes dynamically.
+- No underlying block is needed, every file is handled by kernel callbacks that populate the buffers dynamically.
 
 ### Core data structures
 
@@ -54,3 +54,33 @@ Use `seq_file` helpers to:
 - Show: `show_fn(struct seq_file *s, void *v)` uses `seq_printf(s, "...")` to write pages of data
 - Read/Lseek: `seq_read` and `seq_lseek` are wired in automatically
 - Release: `.proc_release = single_release` frees the iterator
+
+## Writing to procfs files
+
+To accept input from userspace, add a `.proc_write` callback in your `proc_ops`
+
+```c
+
+static ssize_t my_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos) {
+  char kbuf[128];
+  if (count > sizeof(kbuf) -1)
+    return -EINVAL;
+  if (copy_from_user(kbuf, buf, count))
+    return -EFAULT;
+  kbuf[count] = '\0';
+  retunr count;
+}
+
+struct proc_ops my_ops = {
+  /* ... */
+  .proc_write = my_write,
+};
+```
+
+## Cleaning up
+
+```c
+
+remove_proc_entry("stats", parent);
+remove_proc_entry("mydriver", NULL);
+```
