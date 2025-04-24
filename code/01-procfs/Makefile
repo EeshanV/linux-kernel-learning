@@ -1,4 +1,6 @@
-obj-m += proc_stats.o
+#obj-m += proc_stats.o
+
+obj-m := lab.o
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
