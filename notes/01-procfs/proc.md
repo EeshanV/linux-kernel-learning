@@ -84,3 +84,28 @@ struct proc_ops my_ops = {
 remove_proc_entry("stats", parent);
 remove_proc_entry("mydriver", NULL);
 ```
+
+## Exposing [Tunables](tunables.md) via `/proc/sys` (sysctl)
+
+The sysctl interface under `/proc/sys` offers a structured way to expose kernel parameters:
+
+```c
+
+static struct ctl_table my_table[] = {
+  {
+  .procname = 'foo_enabled',
+  .data = &my_foo_enabled,
+  .maxlen = sizeof(int),
+  .proc_handler = proc_dointvec
+  },
+  { }
+};
+
+static struct ctl_table_header *hdr;
+
+hdr = register_sysctl("kernel/my_module", my_table);
+/* ... */
+unregister_sysctl_table(hdr);
+```
+
+This creates `/proc/sys/kernel/my_module/foo_enable` that users can `echo 1 > …` to toggle features at runtime
