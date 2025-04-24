@@ -46,3 +46,11 @@ struct proc_dir_entry *parent;
 parent = proc_mkdir("mydriver", NULL);
 proc_create("stats", 0444, parent, &my_ops);
 ```
+
+## Reading via `seq_file` interface
+
+Use `seq_file` helpers to:
+- Open: `.proc_open = my_open` where `my_open()` calls `single_open(file, show_fn, data_ptr)`
+- Show: `show_fn(struct seq_file *s, void *v)` uses `seq_printf(s, "...")` to write pages of data
+- Read/Lseek: `seq_read` and `seq_lseek` are wired in automatically
+- Release: `.proc_release = single_release` frees the iterator
