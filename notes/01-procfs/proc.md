@@ -35,3 +35,14 @@ proc_create("my_entry", 0644, NULL, &my_ops);
 ```
 
 In the above code, `my_entry` becomes `/proc/my_entry` with permissions `0644`. Internally this allocates `struct proc_dir_entry` tied into VFS's superblock and inode machinery
+
+## Nested Directories
+
+Create a directory under `/proc` by:
+
+```c
+
+struct proc_dir_entry *parent;
+parent = proc_mkdir("mydriver", NULL);
+proc_create("stats", 0444, parent, &my_ops);
+```
