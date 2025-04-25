@@ -46,5 +46,26 @@ struct kvm_userspace_memory_region region = {
   .memory_size = mem_size,
   .userspace_addr = (uint64_t)host_mem,
 };
-ioctl(vm_fd, KVM_SET_USER_MEMORY)
+ioctl(vm_fd, KVM_SET_USER_MEMORY, &region);
 ```
+
+### Entering Guest Mode
+
+Use a `KVM_RUN` ioctl on vCPU fd to start executing the guest.
+
+```c
+mmap(run_size, PROT_READ | PROT_WRITE, MAP_SHARED, vcpu_fd, 0);
+ioctl(vcpu_fd. KVM_RUN, 0);
+```
+
+## I/O & Device Virtualization
+
+### Emulation vs PCI Passthrough
+
+- Emulated Devices (serial, NICs) are handled by QEMU in userspace, trapping I/O exits and modelling hardware
+
+- PCI Passthrough uses KVM's VIFO framework to assign a physical PCI device directly to the VM, giving it exclusive, near-native access
+
+### APIC Virtualization (APICv)
+
+Advanced Programmable Interrupt Controller virtualization (APICv) lets the guest directly read/write the APIC registers without VM exits, batching updates in a shared "MPA" page for low-latency interrupt handling
